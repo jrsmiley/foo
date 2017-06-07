@@ -45,6 +45,7 @@ BUILD_DIR = build
 C_SOURCES =  \
 src/main.c \
 src/system_stm32f4xx.c \
+src/sysclk.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -99,7 +100,7 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
--Iinclude \
+-Iinc \
 -ICMSIS/Device/ST/STM32F4xx/Include \
 -ICMSIS/Include 
 

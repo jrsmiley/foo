@@ -1,0 +1,224 @@
+ARM GAS  /var/folders/9r/058dd0ks2p13fgrcl1zm9cj40000gp/T//cclcGUkB.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"sysclk.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.SystemClockConfig,"ax",%progbits
+  18              		.align	1
+  19              		.global	SystemClockConfig
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  23              		.fpu fpv4-sp-d16
+  25              	SystemClockConfig:
+  26              	.LFB123:
+  27              		.file 1 "src/sysclk.c"
+   1:src/sysclk.c  **** #include "stm32f4xx.h"
+   2:src/sysclk.c  **** 
+   3:src/sysclk.c  **** /* Set the System Clock, AHB, APB1, and APB2 prescalers and set flash latency to 5
+   4:src/sysclk.c  ****  *
+   5:src/sysclk.c  ****  * Target SYSCLK = 168MHz using 25MHz HSE crystal/ceramic oscillator
+   6:src/sysclk.c  ****  *
+   7:src/sysclk.c  ****  * Flash latency = 5
+   8:src/sysclk.c  ****  * PLLM = 25
+   9:src/sysclk.c  ****  * PLLN = 336
+  10:src/sysclk.c  ****  * PLLP = 2
+  11:src/sysclk.c  ****  * PLLQ = 7  (48 MHz)
+  12:src/sysclk.c  ****  * AHB prescaler = 1
+  13:src/sysclk.c  ****  * APB1 prescaler = 4 (42 MHz)
+  14:src/sysclk.c  ****  * APB2 prescaler = 2 (84 MHz)
+  15:src/sysclk.c  **** 
+  16:src/sysclk.c  ****  * The voltage scaling is adjusted to fHCLK frequency as follows:
+  17:src/sysclk.c  ****  * – Scale 2 for fHCLK ≤ 144 MHz
+  18:src/sysclk.c  ****  * – Scale 1 for 144 MHz < fHCLK ≤ 168 MHz. (default)
+  19:src/sysclk.c  ****  */
+  20:src/sysclk.c  **** 
+  21:src/sysclk.c  **** void SystemClockConfig(void)
+  22:src/sysclk.c  **** {
+  28              		.loc 1 22 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  23:src/sysclk.c  ****     // Enable HSE oscillator (25MHz for 1BitSy)
+  24:src/sysclk.c  ****     SET_BIT(RCC->CR, RCC_CR_HSEON); 
+  33              		.loc 1 24 0
+  34 0000 2D4A     		ldr	r2, .L5
+ARM GAS  /var/folders/9r/058dd0ks2p13fgrcl1zm9cj40000gp/T//cclcGUkB.s 			page 2
+
+
+  35 0002 1368     		ldr	r3, [r2]
+  36 0004 43F48033 		orr	r3, r3, #65536
+  37 0008 1360     		str	r3, [r2]
+  38              	.L2:
+  25:src/sysclk.c  **** 
+  26:src/sysclk.c  ****     // Wait for HSERDY
+  27:src/sysclk.c  ****     while (!READ_BIT(RCC->CR, RCC_CR_HSERDY));
+  39              		.loc 1 27 0 discriminator 1
+  40 000a 2B4B     		ldr	r3, .L5
+  41 000c 1B68     		ldr	r3, [r3]
+  42 000e 13F4003F 		tst	r3, #131072
+  43 0012 FAD0     		beq	.L2
+  28:src/sysclk.c  **** 
+  29:src/sysclk.c  ****     // Set FLASH latency 
+  30:src/sysclk.c  ****     MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, FLASH_ACR_LATENCY_5WS);
+  44              		.loc 1 30 0
+  45 0014 294A     		ldr	r2, .L5+4
+  46 0016 1368     		ldr	r3, [r2]
+  47 0018 23F00F03 		bic	r3, r3, #15
+  48 001c 43F00503 		orr	r3, r3, #5
+  49 0020 1360     		str	r3, [r2]
+  31:src/sysclk.c  **** 
+  32:src/sysclk.c  ****     // Main PLL configuration and activation 
+  33:src/sysclk.c  **** 
+  34:src/sysclk.c  ****     // PLLM = 25
+  35:src/sysclk.c  ****     MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLM, (RCC_PLLCFGR_PLLM_4 | RCC_PLLCFGR_PLLM_3 | RCC_PLLCF
+  50              		.loc 1 35 0
+  51 0022 254B     		ldr	r3, .L5
+  52 0024 5A68     		ldr	r2, [r3, #4]
+  53 0026 22F03F02 		bic	r2, r2, #63
+  54 002a 42F01902 		orr	r2, r2, #25
+  55 002e 5A60     		str	r2, [r3, #4]
+  36:src/sysclk.c  **** 
+  37:src/sysclk.c  ****     // PLLN = 336
+  38:src/sysclk.c  ****     MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLN, (RCC_PLLCFGR_PLLN_8 | RCC_PLLCFGR_PLLN_6 | RCC_PLLCF
+  56              		.loc 1 38 0
+  57 0030 5A68     		ldr	r2, [r3, #4]
+  58 0032 22F4FF42 		bic	r2, r2, #32640
+  59 0036 22F04002 		bic	r2, r2, #64
+  60 003a 42F4A842 		orr	r2, r2, #21504
+  61 003e 5A60     		str	r2, [r3, #4]
+  39:src/sysclk.c  **** 
+  40:src/sysclk.c  ****     // PLLP = 2 (both bits cleared)
+  41:src/sysclk.c  ****     MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLP, 0x00);
+  62              		.loc 1 41 0
+  63 0040 5A68     		ldr	r2, [r3, #4]
+  64 0042 22F44032 		bic	r2, r2, #196608
+  65 0046 5A60     		str	r2, [r3, #4]
+  42:src/sysclk.c  **** 
+  43:src/sysclk.c  ****     // PLLQ = 7 
+  44:src/sysclk.c  ****     MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLQ, (RCC_PLLCFGR_PLLQ_0 | RCC_PLLCFGR_PLLQ_1 | RCC_PLLCF
+  66              		.loc 1 44 0
+  67 0048 5A68     		ldr	r2, [r3, #4]
+  68 004a 22F07062 		bic	r2, r2, #251658240
+  69 004e 42F0E062 		orr	r2, r2, #117440512
+  70 0052 5A60     		str	r2, [r3, #4]
+  45:src/sysclk.c  **** 
+ARM GAS  /var/folders/9r/058dd0ks2p13fgrcl1zm9cj40000gp/T//cclcGUkB.s 			page 3
+
+
+  46:src/sysclk.c  ****     // Set PLL source to HSE
+  47:src/sysclk.c  ****     SET_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_HSE);
+  71              		.loc 1 47 0
+  72 0054 5A68     		ldr	r2, [r3, #4]
+  73 0056 42F48002 		orr	r2, r2, #4194304
+  74 005a 5A60     		str	r2, [r3, #4]
+  48:src/sysclk.c  **** 
+  49:src/sysclk.c  ****     // Enable the PLL
+  50:src/sysclk.c  ****     SET_BIT(RCC->CR, RCC_CR_PLLON);
+  75              		.loc 1 50 0
+  76 005c 1A68     		ldr	r2, [r3]
+  77 005e 42F08072 		orr	r2, r2, #16777216
+  78 0062 1A60     		str	r2, [r3]
+  79              	.L3:
+  51:src/sysclk.c  **** 
+  52:src/sysclk.c  ****     // Wait for PLLRDY
+  53:src/sysclk.c  ****     while (!READ_BIT(RCC->CR, RCC_CR_PLLRDY));
+  80              		.loc 1 53 0 discriminator 1
+  81 0064 144B     		ldr	r3, .L5
+  82 0066 1B68     		ldr	r3, [r3]
+  83 0068 13F0007F 		tst	r3, #33554432
+  84 006c FAD0     		beq	.L3
+  54:src/sysclk.c  **** 
+  55:src/sysclk.c  ****     // Set AHB Prescaler to "not divided" (clear high-order bit)
+  56:src/sysclk.c  ****     CLEAR_BIT(RCC->CFGR, RCC_CFGR_HPRE_3);
+  85              		.loc 1 56 0
+  86 006e 124A     		ldr	r2, .L5
+  87 0070 9368     		ldr	r3, [r2, #8]
+  88 0072 23F08003 		bic	r3, r3, #128
+  89 0076 9360     		str	r3, [r2, #8]
+  57:src/sysclk.c  **** 
+  58:src/sysclk.c  ****     // Activeate PLL as SYSCLK
+  59:src/sysclk.c  ****     MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_1);
+  90              		.loc 1 59 0
+  91 0078 9368     		ldr	r3, [r2, #8]
+  92 007a 23F00303 		bic	r3, r3, #3
+  93 007e 43F00203 		orr	r3, r3, #2
+  94 0082 9360     		str	r3, [r2, #8]
+  95              	.L4:
+  60:src/sysclk.c  **** 
+  61:src/sysclk.c  ****     // Wait for SYSCLK to indicate that the clock source is now PLL
+  62:src/sysclk.c  ****     while (!(READ_REG(RCC->CFGR) & RCC_CFGR_SWS_1));
+  96              		.loc 1 62 0 discriminator 1
+  97 0084 0C4B     		ldr	r3, .L5
+  98 0086 9B68     		ldr	r3, [r3, #8]
+  99 0088 13F0080F 		tst	r3, #8
+ 100 008c FAD0     		beq	.L4
+  63:src/sysclk.c  **** 
+  64:src/sysclk.c  ****     // Set APB1 (low speed) and APB2 (high speed) prescalers
+  65:src/sysclk.c  ****     MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE1, (RCC_CFGR_PPRE1_2 | RCC_CFGR_PPRE1_0));  // 48MHz
+ 101              		.loc 1 65 0
+ 102 008e 0A4A     		ldr	r2, .L5
+ 103 0090 9368     		ldr	r3, [r2, #8]
+ 104 0092 23F4E053 		bic	r3, r3, #7168
+ 105 0096 43F4A053 		orr	r3, r3, #5120
+ 106 009a 9360     		str	r3, [r2, #8]
+  66:src/sysclk.c  ****     MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE2, RCC_CFGR_PPRE2_2);                       // 84MHz
+ARM GAS  /var/folders/9r/058dd0ks2p13fgrcl1zm9cj40000gp/T//cclcGUkB.s 			page 4
+
+
+ 107              		.loc 1 66 0
+ 108 009c 9368     		ldr	r3, [r2, #8]
+ 109 009e 23F46043 		bic	r3, r3, #57344
+ 110 00a2 43F40043 		orr	r3, r3, #32768
+ 111 00a6 9360     		str	r3, [r2, #8]
+  67:src/sysclk.c  ****     
+  68:src/sysclk.c  ****     // Update CMSIS SystemCoreClock variable 
+  69:src/sysclk.c  ****     SystemCoreClock = 168000000;
+ 112              		.loc 1 69 0
+ 113 00a8 02F14A42 		add	r2, r2, #-905969664
+ 114 00ac 02F5A132 		add	r2, r2, #82432
+ 115 00b0 034B     		ldr	r3, .L5+8
+ 116 00b2 1A60     		str	r2, [r3]
+ 117 00b4 7047     		bx	lr
+ 118              	.L6:
+ 119 00b6 00BF     		.align	2
+ 120              	.L5:
+ 121 00b8 00380240 		.word	1073887232
+ 122 00bc 003C0240 		.word	1073888256
+ 123 00c0 00000000 		.word	SystemCoreClock
+ 124              		.cfi_endproc
+ 125              	.LFE123:
+ 127              		.text
+ 128              	.Letext0:
+ 129              		.file 2 "/Users/John/local/gcc-arm-none-eabi-6-2017-q1-update/arm-none-eabi/include/machine/_defau
+ 130              		.file 3 "/Users/John/local/gcc-arm-none-eabi-6-2017-q1-update/arm-none-eabi/include/sys/_stdint.h"
+ 131              		.file 4 "CMSIS/Include/core_cm4.h"
+ 132              		.file 5 "CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h"
+ 133              		.file 6 "CMSIS/Device/ST/STM32F4xx/Include/stm32f415xx.h"
+ARM GAS  /var/folders/9r/058dd0ks2p13fgrcl1zm9cj40000gp/T//cclcGUkB.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sysclk.c
+/var/folders/9r/058dd0ks2p13fgrcl1zm9cj40000gp/T//cclcGUkB.s:18     .text.SystemClockConfig:0000000000000000 $t
+/var/folders/9r/058dd0ks2p13fgrcl1zm9cj40000gp/T//cclcGUkB.s:25     .text.SystemClockConfig:0000000000000000 SystemClockConfig
+/var/folders/9r/058dd0ks2p13fgrcl1zm9cj40000gp/T//cclcGUkB.s:121    .text.SystemClockConfig:00000000000000b8 $d
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+SystemCoreClock
