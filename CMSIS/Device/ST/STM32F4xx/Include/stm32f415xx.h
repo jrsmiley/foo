@@ -9973,7 +9973,7 @@ typedef struct
 #define RCC_APB1ENR_WWDGEN_Pos             (11U)                               
 #define RCC_APB1ENR_WWDGEN_Msk             (0x1U << RCC_APB1ENR_WWDGEN_Pos)    /*!< 0x00000800 */
 #define RCC_APB1ENR_WWDGEN                 RCC_APB1ENR_WWDGEN_Msk              
-#define RCC_APB1ENR_SPI2EN_Pos             (14U)                               
+#define RCC_APB1ENR_SPI2EN_Pos             (14U)
 #define RCC_APB1ENR_SPI2EN_Msk             (0x1U << RCC_APB1ENR_SPI2EN_Pos)    /*!< 0x00004000 */
 #define RCC_APB1ENR_SPI2EN                 RCC_APB1ENR_SPI2EN_Msk              
 #define RCC_APB1ENR_SPI3EN_Pos             (15U)                               

@@ -2,11 +2,15 @@
 #include "sysclk.h"
 
 void SPI2GPIOConfig (void);
+void SPIMasterInit (SPI_TypeDef *SPIx);
+void SPIDisable (SPI_TypeDef *SPIx);
 
 int main(void)
 {
     SystemClockConfig();
     SPI2GPIOConfig();
+    SPIMasterInit(SPI2);
+    SPIDisable(SPI2);
 
     while (1)
     {
@@ -51,4 +55,31 @@ void SPI2GPIOConfig (void) {
     MODIFY_REG(GPIOB->AFR[1], (GPIO_AFRH_AFSEL12 | GPIO_AFRH_AFSEL13 | GPIO_AFRH_AFSEL14 | GPIO_AFRH_AFSEL14), 
                               (GPIO_AFRH_AFSEL12_0 | GPIO_AFRH_AFSEL12_2 | GPIO_AFRH_AFSEL13_0 | GPIO_AFRH_AFSEL13_2 |
                                GPIO_AFRH_AFSEL14_0 | GPIO_AFRH_AFSEL14_2 | GPIO_AFRH_AFSEL15_0 | GPIO_AFRH_AFSEL15_2));
+}
+
+void SPIMasterInit (SPI_TypeDef *SPIx) {
+    // Enable the SPI clock
+    if (SPIx == SPI1) SET_BIT(RCC->APB2ENR, RCC_APB2ENR_SPI1EN);
+    if (SPIx == SPI2) SET_BIT(RCC->APB1ENR, RCC_APB1ENR_SPI2EN);
+    if (SPIx == SPI3) SET_BIT(RCC->APB1ENR, RCC_APB1ENR_SPI3EN);
+
+    SET_BIT(SPIx->CR2, SPI_CR2_SSOE);
+    WRITE_REG(SPIx->CR1, 0b0000101101100111);
+    // SET_BIT(SPIx->CR1, SPI_CR1_MSTR);
+    // SET_BIT(SPIx->CR1, SPI_CR1_SPE);
+}
+
+
+void SPIDisable (SPI_TypeDef *SPIx) {
+    // Wait for in-flight RX to complete
+    while (SPIx->SR & SPI_SR_RXNE);
+
+    // Wait for in-flight TX to complete
+    while(!(SPIx->SR & SPI_SR_TXE));
+
+    // Wait for SPI BSY = 0
+    while(SPIx->SR & SPI_SR_BSY);
+
+    // Disable the SPI
+    CLEAR_BIT(SPIx->CR1, SPI_CR1_SPE);
 }
