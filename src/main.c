@@ -5,9 +5,29 @@ void SPI2GPIOConfig (void);
 void SPIMasterInit (SPI_TypeDef *SPIx);
 void SPIDisable (SPI_TypeDef *SPIx);
 
+/* Set the System Clock, AHB, APB1, and APB2 prescalers and set flash latency to 5
+ *
+ * Target SYSCLK = 168MHz using 25MHz HSE crystal/ceramic oscillator
+ *
+ * Flash latency = 5
+ * PLLM = 25
+ * PLLN = 336
+ * PLLP = 2
+ * PLLQ = 7  (48 MHz)
+ * AHB prescaler = 1
+ * APB1 prescaler = 4 (42 MHz)
+ * APB2 prescaler = 2 (84 MHz)
+
+ * The voltage scaling is adjusted to fHCLK frequency as follows:
+ * – Scale 2 for fHCLK ≤ 144 MHz
+ * – Scale 1 for 144 MHz < fHCLK ≤ 168 MHz. (default)
+ */
+
+struct sysclkSpec sysclk25_168 = { .flashLatency = 5, .PLLM = 25, .PLLN = 336, .PLLP = 2, .PLLQ = 7, .AHBPrescaler = 1, .APB1Prescaler = 4, .APB2Prescaler = 2, .VRegScale = 2 };
+
 int main(void)
 {
-    SystemClockConfig();
+    SystemClockConfig(&sysclk25_168);
     SPI2GPIOConfig();
     SPIMasterInit(SPI2);
     SPIDisable(SPI2);

@@ -1,47 +1,21 @@
 #include "stm32f4xx.h"
+#include "sysclk.h"
 
-/* Set the System Clock, AHB, APB1, and APB2 prescalers and set flash latency to 5
- *
- * Target SYSCLK = 168MHz using 25MHz HSE crystal/ceramic oscillator
- *
- * Flash latency = 5
- * PLLM = 25
- * PLLN = 336
- * PLLP = 2
- * PLLQ = 7  (48 MHz)
- * AHB prescaler = 1
- * APB1 prescaler = 4 (42 MHz)
- * APB2 prescaler = 2 (84 MHz)
-
- * The voltage scaling is adjusted to fHCLK frequency as follows:
- * – Scale 2 for fHCLK ≤ 144 MHz
- * – Scale 1 for 144 MHz < fHCLK ≤ 168 MHz. (default)
- */
-
-void SystemClockConfig(void)
+void SystemClockConfig(struct sysclkSpec *spec)
 {
-    // Enable HSE oscillator (25MHz for 1BitSy)
     SET_BIT(RCC->CR, RCC_CR_HSEON); 
 
     // Wait for HSERDY
     while (!READ_BIT(RCC->CR, RCC_CR_HSERDY));
 
     // Set FLASH latency 
-    MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, FLASH_ACR_LATENCY_5WS);
+    MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, spec->flashLatency);
 
     // Main PLL configuration and activation 
-
-    // PLLM = 25
-    MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLM, (RCC_PLLCFGR_PLLM_4 | RCC_PLLCFGR_PLLM_3 | RCC_PLLCFGR_PLLM_0));
-
-    // PLLN = 336
-    MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLN, (RCC_PLLCFGR_PLLN_8 | RCC_PLLCFGR_PLLN_6 | RCC_PLLCFGR_PLLN_4));
-
-    // PLLP = 2 (both bits cleared)
+    MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLM, (spec->PLLM << RCC_PLLCFGR_PLLM_Pos));
+    MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLN, (spec->PLLN << RCC_PLLCFGR_PLLN_Pos));
     MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLP, 0x00);
-
-    // PLLQ = 7 
-    MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLQ, (RCC_PLLCFGR_PLLQ_0 | RCC_PLLCFGR_PLLQ_1 | RCC_PLLCFGR_PLLQ_2));
+    MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLQ, (spec->PLLQ << RCC_PLLCFGR_PLLQ_Pos));
 
     // Set PLL source to HSE
     SET_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC_HSE);
